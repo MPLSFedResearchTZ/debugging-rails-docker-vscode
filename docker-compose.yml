@@ -4,18 +4,30 @@ services:
   db:
     image: postgres
     environment:
+      POSTGRES_HOST: db
       POSTGRES_USER: peterson
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: web_development
     ports:
-      - 5432
+      - "5432:5432"
 
   web:
     build: .
-    command: bash -c "rm -f tmp/pids/server.pid && rails s -p 3000 -b 0.0.0.0"
+    # command: bash -c "rm -f tmp/pids/server.pid && rails s -p 3000 -b 0.0.0.0"
+    command: bash -c "rm -f tmp/pids/server.pid && rdebug-ide --host 0.0.0.0 --port 8999 -- bin/rails s -p 3000 -b 0.0.0.0"
+    # command: bundle exec rdebug-ide --host 0.0.0.0 --port 8999 -- bin/rails s -p 3000 -b 0.0.0.0
     volumes:
       - .:/app
       - gems:/usr/local/bundle
     ports:
       - 3000:3000
+      #- 8999:8999
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USERNAME: peterson
+      DATABASE_PASSWORD: password
+      POSTGRES_PORT: 5432   
+      DB_DATABASE: web_development
     depends_on:
       - db
 
@@ -23,7 +35,7 @@ services:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: 'petersondaronch@gmail.com'
-      PGADMIN_DEFAULT_PASSWORD: 'bumblebee'
+      PGADMIN_DEFAULT_PASSWORD: 'password'
       PGADMIN_LISTEN_PORT: '8080'
     ports:
       - 8080:8080
